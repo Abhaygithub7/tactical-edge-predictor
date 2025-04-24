@@ -1,24 +1,14 @@
-
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import TeamSelector from "@/components/TeamSelector"
 import FormationSelector from "@/components/FormationSelector"
 import MatchSettings from "@/components/MatchSettings"
 import RecentForm from "@/components/RecentForm"
-
-// Temporary data for development
-const mockTeams = [
-  { id: "1", name: "Arsenal", logo: "/placeholder.svg" },
-  { id: "2", name: "Chelsea", logo: "/placeholder.svg" },
-  { id: "3", name: "Liverpool", logo: "/placeholder.svg" },
-  { id: "4", name: "Manchester City", logo: "/placeholder.svg" },
-  { id: "5", name: "Manchester United", logo: "/placeholder.svg" },
-  { id: "6", name: "Tottenham", logo: "/placeholder.svg" },
-]
+import { teams, Team } from "@/data/teams"
 
 const Index = () => {
-  const [selectedTeam, setSelectedTeam] = useState<any>(null)
-  const [selectedOpponent, setSelectedOpponent] = useState<any>(null)
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
+  const [selectedOpponent, setSelectedOpponent] = useState<Team | null>(null)
   const [formation, setFormation] = useState("")
   const [isHome, setIsHome] = useState(true)
   const [competition, setCompetition] = useState("")
@@ -36,13 +26,13 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <TeamSelector
-                teams={mockTeams}
+                teams={teams}
                 selectedTeam={selectedTeam}
                 onSelectTeam={setSelectedTeam}
                 label="Your Team"
               />
               <TeamSelector
-                teams={mockTeams.filter(t => t.id !== selectedTeam?.id)}
+                teams={teams.filter(t => t.id !== selectedTeam?.id)}
                 selectedTeam={selectedOpponent}
                 onSelectTeam={setSelectedOpponent}
                 label="Opponent"
@@ -78,4 +68,3 @@ const Index = () => {
 }
 
 export default Index
-
