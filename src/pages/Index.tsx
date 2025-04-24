@@ -1,10 +1,20 @@
+
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import TeamSelector from "@/components/TeamSelector"
 import FormationSelector from "@/components/FormationSelector"
 import MatchSettings from "@/components/MatchSettings"
 import RecentForm from "@/components/RecentForm"
-import { teams, Team } from "@/data/teams"
+import { useTeams } from "@/hooks/useFootballData"
+import { Team } from "@/data/teams"
+
+const LEAGUES = {
+  'PL': 'Premier League',
+  'PD': 'La Liga',
+  'BL1': 'Bundesliga',
+  'SA': 'Serie A',
+  'FL1': 'Ligue 1'
+};
 
 const Index = () => {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
@@ -13,6 +23,27 @@ const Index = () => {
   const [isHome, setIsHome] = useState(true)
   const [competition, setCompetition] = useState("")
   const [form, setForm] = useState<string[]>([])
+
+  // Fetch teams from all major leagues
+  const { data: premierLeagueData } = useTeams('PL');
+  const { data: laLigaData } = useTeams('PD');
+  const { data: bundesligaData } = useTeams('BL1');
+  const { data: serieAData } = useTeams('SA');
+  const { data: ligue1Data } = useTeams('FL1');
+
+  // Combine all teams data
+  const allTeams = [
+    ...(premierLeagueData?.data?.teams || []),
+    ...(laLigaData?.data?.teams || []),
+    ...(bundesligaData?.data?.teams || []),
+    ...(serieAData?.data?.teams || []),
+    ...(ligue1Data?.data?.teams || []),
+  ].map(team => ({
+    id: team.id.toString(),
+    name: team.name,
+    logo: team.crest,
+    league: LEAGUES[team.area.code] || 'Other'
+  }));
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
