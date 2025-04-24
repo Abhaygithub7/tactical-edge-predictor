@@ -57,13 +57,13 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <TeamSelector
-                teams={teams}
+                teams={allTeams}
                 selectedTeam={selectedTeam}
                 onSelectTeam={setSelectedTeam}
                 label="Your Team"
               />
               <TeamSelector
-                teams={teams.filter(t => t.id !== selectedTeam?.id)}
+                teams={allTeams.filter(t => t.id !== selectedTeam?.id)}
                 selectedTeam={selectedOpponent}
                 onSelectTeam={setSelectedOpponent}
                 label="Opponent"
