@@ -1,12 +1,13 @@
-
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import TeamSelector from "@/components/TeamSelector"
 import FormationSelector from "@/components/FormationSelector"
 import MatchSettings from "@/components/MatchSettings"
 import RecentForm from "@/components/RecentForm"
 import { useTeams } from "@/hooks/useFootballData"
 import { Team } from "@/data/teams"
+import { predictMatch } from "@/utils/predictionModel"
 
 const LEAGUES = {
   'PL': 'Premier League',
@@ -23,15 +24,19 @@ const Index = () => {
   const [isHome, setIsHome] = useState(true)
   const [competition, setCompetition] = useState("")
   const [form, setForm] = useState<string[]>([])
+  const [opponentForm, setOpponentForm] = useState<string[]>([])
+  const [prediction, setPrediction] = useState<{ 
+    team1Probability: number; 
+    team2Probability: number; 
+    draw: number 
+  } | null>(null)
 
-  // Fetch teams from all major leagues
   const { data: premierLeagueData } = useTeams('PL');
   const { data: laLigaData } = useTeams('PD');
   const { data: bundesligaData } = useTeams('BL1');
   const { data: serieAData } = useTeams('SA');
   const { data: ligue1Data } = useTeams('FL1');
 
-  // Combine all teams data
   const allTeams = [
     ...(premierLeagueData?.data?.teams || []),
     ...(laLigaData?.data?.teams || []),
@@ -39,11 +44,21 @@ const Index = () => {
     ...(serieAData?.data?.teams || []),
     ...(ligue1Data?.data?.teams || []),
   ].map(team => ({
-    id: team.id.toString(),
+    id: team.id?.toString() || team.name,
     name: team.name,
-    logo: team.crest,
-    league: LEAGUES[team.area.code] || 'Other'
+    logo: team.crest || team.logo,
+    league: LEAGUES[team.area?.code] || team.league || 'Other'
   }));
+
+  const handlePredict = () => {
+    if (selectedTeam && selectedOpponent && form.length > 0 && opponentForm.length > 0) {
+      const result = predictMatch(
+        { form, isHome },
+        { form: opponentForm, isHome: !isHome }
+      );
+      setPrediction(result);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
@@ -86,10 +101,34 @@ const Index = () => {
                 onHomeChange={setIsHome}
                 onCompetitionChange={setCompetition}
               />
-              <RecentForm
-                form={form}
-                onFormChange={setForm}
-              />
+              <div className="space-y-4">
+                <RecentForm
+                  form={form}
+                  onFormChange={setForm}
+                  label="Your Team's Form"
+                />
+                <RecentForm
+                  form={opponentForm}
+                  onFormChange={setOpponentForm}
+                  label="Opponent's Form"
+                />
+              </div>
+              <Button 
+                className="w-full" 
+                onClick={handlePredict}
+                disabled={!selectedTeam || !selectedOpponent || form.length === 0 || opponentForm.length === 0}
+              >
+                Predict Result
+              </Button>
+              
+              {prediction && (
+                <div className="mt-4 p-4 border rounded-lg">
+                  <h3 className="font-semibold mb-2">Prediction:</h3>
+                  <p>{selectedTeam?.name}: {(prediction.team1Probability * 100).toFixed(1)}%</p>
+                  <p>{selectedOpponent?.name}: {(prediction.team2Probability * 100).toFixed(1)}%</p>
+                  <p>Draw: {(prediction.draw * 100).toFixed(1)}%</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
