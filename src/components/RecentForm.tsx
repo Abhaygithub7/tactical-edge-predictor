@@ -7,9 +7,10 @@ interface RecentFormProps {
 }
 
 const RecentForm = ({ form, onFormChange }: RecentFormProps) => {
-  const handleValueChange = (value: string) => {
-    const formArray = value.split(",")
-    onFormChange(formArray.slice(-5))
+  const handleValueChange = (value: string[]) => {
+    // Just pass the array directly to the onFormChange function
+    // This ensures we're passing string[] to string[]
+    onFormChange(value.slice(-5))
   }
 
   return (
@@ -39,4 +40,3 @@ const RecentForm = ({ form, onFormChange }: RecentFormProps) => {
 }
 
 export default RecentForm
-
